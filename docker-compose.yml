@@ -1,0 +1,28 @@
+version: '3.4'
+
+services:
+  rediscache.web:
+    image: ${DOCKER_REGISTRY-}rediscacheweb
+    networks:
+    - cache
+    build:
+      context: .
+      dockerfile: RedisCache.Web/Dockerfile
+    links:
+      - "redis"
+      - "redis:cache"
+  redis:
+    image: redis
+    ports: 
+    - "6379:6379"
+    networks:
+    - cache
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+networks:
+  cache:
