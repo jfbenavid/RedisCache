@@ -19,8 +19,13 @@ namespace RedisCache.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            IConnectionMultiplexer redis = ConnectionMultiplexer.Connect(Configuration["AppSettings:RedisConnection"]);
-            services.AddScoped(_ => redis.GetDatabase());
+            //IConnectionMultiplexer redis = ConnectionMultiplexer.Connect(Configuration["AppSettings:RedisConnection"]);
+            //services.AddScoped(_ => redis.GetDatabase());
+
+            services.AddDistributedRedisCache(option =>
+            {
+                option.Configuration = Configuration["AppSettings:RedisConnection"];
+            });
 
             services.AddControllers();
         }

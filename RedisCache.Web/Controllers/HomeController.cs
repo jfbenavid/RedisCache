@@ -1,7 +1,7 @@
 ﻿namespace RedisCache.Web.Controllers
 {
     using Microsoft.AspNetCore.Mvc;
-    using StackExchange.Redis;
+    using Microsoft.Extensions.Caching.Distributed;
     using System;
     using System.Collections.Generic;
 
@@ -11,9 +11,9 @@
     [ApiController]
     public class HomeController : ControllerBase
     {
-        private readonly IDatabase _database;
+        private readonly IDistributedCache _database;
 
-        public HomeController(IDatabase idatabase)
+        public HomeController(IDistributedCache idatabase)
         {
             _database = idatabase;
         }
@@ -21,13 +21,13 @@
         [HttpGet("{key}")]
         public string Get(string key)
         {
-            return _database.StringGet(key);
+            return _database.GetString(key);
         }
 
         [HttpPost("{minutesAlive}")]
         public void Post([FromBody] KeyValuePair<string, string> keyValue, double? minutesAlive = 5)
         {
-            _database.StringSet(keyValue.Key, keyValue.Value, TimeSpan.FromMinutes(minutesAlive.Value));
+            _database.SetString(keyValue.Key, keyValue.Value, new DistributedCacheEntryOptions { SlidingExpiration = TimeSpan.FromMinutes(minutesAlive.Value) });
         }
     }
 }
